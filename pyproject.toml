@@ -1,0 +1,63 @@
+[build-system]
+requires = ["hatchling>=1.27"]
+build-backend = "hatchling.build"
+
+[project]
+name = "jkflash"
+version = "0.1.0"
+description = "Safety-focused JK BMS monitor and firmware flasher"
+readme = "README.md"
+requires-python = ">=3.14,<3.15"
+dependencies = [
+  "pycryptodome>=3.23,<4",
+  "pyserial>=3.5,<4",
+  "textual>=8,<9",
+]
+
+[project.optional-dependencies]
+test = [
+  "pytest>=8.4,<10",
+  "pytest-asyncio>=1.1,<2",
+  "pytest-cov>=6.2,<8",
+]
+dev = [
+  "ruff>=0.8,<1",
+  "basedpyright>=1.29,<2",
+]
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/jkflash"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = "--strict-markers --cov=jkflash --cov-branch --cov-report=term-missing --cov-fail-under=90"
+
+[tool.coverage.run]
+branch = true
+source = ["jkflash"]
+
+[tool.coverage.report]
+show_missing = true
+skip_covered = true
+fail_under = 90
+
+[tool.ruff]
+target-version = "py314"
+# 120, not the 88/100 default: several dashboard format strings in ui.py are
+# deliberately single lines (one logical table row each); wrapping them would
+# hurt readability more than the extra width costs.
+line-length = 120
+src = ["src", "tests"]
+# implementation_details/ is a separate sub-project (its own pyproject.toml,
+# its own Python floor) of sanitized captures and research/decode tooling,
+# deliberately kept apart from the shipped jkflash package; see its README.
+extend-exclude = ["implementation_details"]
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "UP", "B", "SIM"]
+
+[tool.basedpyright]
+include = ["src", "tests"]
+pythonVersion = "3.14"
+typeCheckingMode = "standard"
+
